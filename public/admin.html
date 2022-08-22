@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turkuaz/1.0.0/turkuaz.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style>
+        .input {
+            width: 100%;
+        }
+
+        .modal.invalid {
+            top: 75% !important;
+        }
+
+        /* The snackbar - position it at the bottom and in the middle of the screen */
+        #snackbar {
+            visibility: hidden;
+            /* Hidden by default. Visible on click */
+            min-width: 250px;
+            /* Set a default minimum width */
+            margin-left: -125px;
+            /* Divide value of min-width by 2 */
+            background-color: #333;
+            /* Black background color */
+            color: #fff;
+            /* White text color */
+            text-align: center;
+            /* Centered text */
+            border-radius: 2px;
+            /* Rounded borders */
+            padding: 16px;
+            /* Padding */
+            position: fixed;
+            /* Sit on top of the screen */
+            z-index: 1;
+            /* Add a z-index if needed */
+            left: 50%;
+            /* Center the snackbar */
+            bottom: 30px;
+            /* 30px from the bottom */
+        }
+
+        /* Show the snackbar when clicking on a button (class added with JavaScript) */
+        #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        /* Animations to fade the snackbar in and out */
+        @-webkit-keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @-webkit-keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a class="button is-warning ml-3 mt-3" data-toggle="modal" data-target="#addproduct">Add Product</a>
+    <a class="button is-danger ml-3 mt-3" data-toggle="modal" data-target="#del_product">Delete Product</a>
+    <ul id="products"></ul>
+
+    <!-- Modal -->
+    <dialog class="modal is-success" id="addproduct" class="modal fade" style="z-index: 99999999;">
+        <div class="modal_content">
+            <div class="modal_icon">
+                <svg role="img" viewBox="0 0 512 512">
+                    <path fill="currentColor"
+                        d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z">
+                    </path>
+                </svg>
+            </div>
+            <div style="width: 100%;">
+                <h3 class="modal_title">Add Product</h3>
+                <p>
+                <div class="form-field">
+                    <input type="text" id="product_name" class="input mt-3" placeholder="Product Name">
+                    <small class="input-text" id="product_name_info"></small>
+                </div>
+
+                <div class="form-field">
+                    <input type="number" id="product_key" class="input" placeholder="Product Key ">
+                    <small class="input-text" id="product_key_info"></small>
+                </div>
+
+                <div class="form-field">
+                    <input type="text" id="product_ebay_href" class="input" placeholder="Product E-Bay Href">
+                    <small class="input-text" id="product_ebay_href_info"></small>
+                </div>
+
+                <div class="form-field">
+                    <input type="password" id="adminPassword" class="input" placeholder="Admin Password">
+                    <small class="input-text" id="adminPassword_info"></small>
+                </div>
+
+                <input type="file" id="product_image">
+                </p>
+            </div>
+        </div>
+        <div class="modal_footer">
+            <a class="button is-outline mr-1" data-dismiss="modal">Cancel</a>
+            <button class="button is-success" onclick="submit()">Add Product</button>
+        </div>
+    </dialog>
+
+    <dialog class="modal is-danger" id="del_product" class="modal fade" style="z-index: 99999999;">
+        <div class="modal_content">
+            <div class="modal_icon">
+                <svg role="img" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+            </div>
+            <div style="width: 100%;">
+                <h3 class="modal_title">Delete Product</h3>
+                <p>
+                <div class="form-field">
+                    <input type="number" id="del_product_key" class="input" placeholder="Product Key">
+                </div>
+                <div class="form-field">
+                    <input type="password" id="del_product_adminPassword" class="input" placeholder="Admin Password">
+                </div>
+                </p>
+            </div>
+        </div>
+        <div class="modal_footer">
+            <a class="button is-outline mr-1" data-dismiss="modal">Cancel</a>
+            <button class="button is-danger" onclick="del()">Delete Product</button>
+        </div>
+    </dialog>
+
+    <div id="snackbar" style="z-index: 999999;"></div>
+
+    <script>
+        function getBase64(file, callback) {
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                callback(reader.result);
+            };
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+        }
+
+        function submit() {
+
+            const modal = document.querySelector('#addproduct');
+            const product_name = document.querySelector('#product_name');
+            const product_name_info = document.querySelector('#product_name_info');
+            const product_key = document.querySelector('#product_key');
+            const product_key_info = document.querySelector('#product_key_info');
+            const product_ebay_href = document.querySelector('#product_ebay_href');
+            const product_ebay_info = document.querySelector('#product_ebay_href_info');
+            const adminPassword = document.querySelector('#adminPassword');
+            const adminPassword_info = document.querySelector('#adminPassword_info');
+
+            let stop = false;
+
+            if (product_name.value.trim() === "") {
+                product_name.classList.add('is-invalid');
+                product_name_info.innerHTML = `Boş mu?`;
+                modal.classList.add('invalid');
+                stop = true;
+            }
+
+            if (product_key.value.trim() === "") {
+                product_key.classList.add('is-invalid');
+                product_key_info.innerHTML = `Boş mu?`;
+                modal.classList.add('invalid');
+                stop = true;
+            }
+
+            if (product_ebay_href.value.trim() === "") {
+                product_ebay_href.classList.add('is-invalid');
+                product_ebay_href_info.innerHTML = `Boş mu?`;
+                modal.classList.add('invalid');
+                stop = true;
+            }
+
+            if (adminPassword.value.trim() === "") {
+                adminPassword.classList.add('is-invalid');
+                adminPassword_info.innerHTML = `Boş mu?`;
+                modal.classList.add('invalid');
+                stop = true;
+            }
+
+            if (stop) return;
+            try {
+                getBase64(document.querySelector('#product_image').files[0], product_file => {
+                    $.ajax({
+                        url: "http://localhost/api/newItem",
+                        method: "POST",
+                        cors: "no-cors",
+                        dataType: "json",
+                        data: {
+                            adminPassword: adminPassword.value,
+                            name: product_name.value,
+                            image: product_file,
+                            key: product_key.value,
+                            ebay_href: product_ebay_href.value
+                        }
+                    }).done(function (data) {
+                        if (data.statusCode === 2) {
+                            snackbar("Product Added");
+                        } else {
+                            snackbar("Error: " + data.message);
+                        }
+                    }).fail(err => {
+                        snackbar("Error: " + err);
+                    });
+                });
+            } catch (error) {
+                snackbar("Error: " + error);
+            }
+
+        }
+
+        function del() {
+            const key = document.querySelector('#del_product_key');
+            const adminPassword = document.querySelector('#del_product_adminPassword');
+
+            $.ajax({
+                url: "http://localhost/api/delItem",
+                method: "POST",
+                cors: "no-cors",
+                dataType: "json",
+                data: {
+                    key: key.value,
+                    adminPassword: adminPassword.value
+                }
+            }).done(function (data) {
+                window.location.reload()
+            });
+        }
+
+        function snackbar(message) {
+            // Get the snackbar DIV
+            var x = document.getElementById("snackbar");
+
+            // Add the "show" class to DIV
+            x.innerText = message;
+            x.className = "show";
+
+            // After 3 seconds, remove the show class from DIV
+            setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+        }
+
+        $.ajax({
+            url: "http://localhost/api/products",
+            method: "GET",
+            cors: "no-cors",
+            dataType: "json"
+        }).done(function (data) {
+            data.products.forEach(product => {
+                const li = $(`<li id="${product.key}" class="d-inline-block"><a href="./search?q=${product.key}" class="box mt-3 ml-3 col" style="max-width:max-content;max-height:max-content;"><img src="${product.product_image}" alt="${product.product_name}" class="image" width="150" height="150" /></a></li>`);
+                $('#products').append(li)
+            });
+        });
+    </script>
+</body>
+
+</html>

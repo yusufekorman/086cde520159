@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Static Template</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/turkuaz/1.0.0/turkuaz.min.css">
+</head>
+
+<body>
+    <div class="box mt-4 ml-4" style="width: 400px;">
+        <ul>
+            <li id="name">
+                <h1 class="title is-size-4">Undefined</h1>
+            </li>
+            <li id="image">
+                <img src="undefined" alt="undefined" class="image" width="300" height="300">
+            </li>
+            <li id="go">
+                <a href="." class="button is-info">Go E-Bay</a>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const curr_url = new URL(window.location.href);
+
+        $.ajax({
+            url: "http://localhost/api/search",
+            method: "POST",
+            cors: "no-cors",
+            data: {
+                q: curr_url.searchParams.get("q")
+            },
+            dataType: "json"
+        }).done(function (data) {
+            if (data.statusCode === 2) {
+                $('ul li#name h1').text(data.data.product_name);
+                $('ul li#image img').attr('src', data.data.product_image).attr('alt', 'Product Image');
+                $('ul li#go a').attr('href', `${data.data.ebay_href}`);
+            } else {
+                document.body.innerHTML = `<h1 class="title is-size-4"><strong>${curr_url.searchParams.get("q")}</strong> is not found!</h1>`
+            }
+        });
+    </script>
+</body>
+
+</html>
